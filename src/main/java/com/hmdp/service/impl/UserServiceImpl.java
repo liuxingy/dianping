@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
+import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 import static com.hmdp.utils.SystemConstants.USER_NICK_NAME_PREFIX;
@@ -74,6 +76,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private User createUserWithPhone(String phone) {
         User user = new User();
         user.setPhone(phone);
+        user.setCreateTime(new Date());
         user.setNickName(USER_NICK_NAME_PREFIX + RandomUtil.randomString(10));
         save(user);
         return user;
