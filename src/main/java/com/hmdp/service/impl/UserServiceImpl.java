@@ -1,6 +1,7 @@
 package com.hmdp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -85,7 +87,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 7.保存用户信息到redis中
         String token = UUID.randomUUID().toString(true);    // 随机生成token，将token作为key
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);// 将user对象转为hash存储
-        Map<String, Object> userMap = BeanUtil.beanToMap(userDTO);
+        Map<String, Object> userMap = BeanUtil.beanToMap(userDTO, new HashMap<>(),
+                CopyOptions.create()
+                        .setIgnoreNullValue(true)
+                        .setFieldValueEditor((fieldName, fieldValue) -> fieldValue.toString())); // 对字段的值做自定义修改
         stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY + token, userMap);    //  key就是token，值 将user转换成map然后存
         stringRedisTemplate.expire(LOGIN_USER_KEY + token, 30L, TimeUnit.MINUTES);
 
